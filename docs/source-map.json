@@ -1,0 +1,132 @@
+[
+  {
+    "source": "scripts/qbo_boundary_v4.py",
+    "destination": "src/qbo/boundary.py",
+    "source_sha256": "5a981787f65d1744551b4a3c127d1db5c71fe81ad28719d221927c5b301ad364"
+  },
+  {
+    "source": "scripts/qbo_zonal_v5.py",
+    "destination": "src/qbo/zonal.py",
+    "source_sha256": "798806e4281a19c21d06d557117341bd0eaea2a88278af3cfb42994625a821bd"
+  },
+  {
+    "source": "build_same_qbo_targets.py",
+    "destination": "src/qbo/targets.py",
+    "source_sha256": "a3f2688d4046f353a3ece9e8910244be47e72d54439b6fd3cdc330fe465c8b83"
+  },
+  {
+    "source": "build_early_late_hadisst_backgrounds.py",
+    "destination": "src/qbo/backgrounds.py",
+    "source_sha256": "a6bd5ffbe0a9ee3ed06e41c1cf8a86d0072e2d1caaa5be17f926cbaf07a7ce72"
+  },
+  {
+    "source": "validate_same_qbo_targets.py",
+    "destination": "src/qbo/validate.py",
+    "source_sha256": "0b35871e35ce7423755c7f6400b9912bedf3dda155c39abb291452e7b48a136e"
+  },
+  {
+    "source": "scripts/audit_inputs.py",
+    "destination": "scripts/analysis/audit_inputs.py",
+    "source_sha256": "0df470f3292fb10b16c6fdd6f24c9cbb117666a99e2e6357ca04c5bd33157128"
+  },
+  {
+    "source": "scripts/audit_remote_qbo.py",
+    "destination": "scripts/analysis/audit_remote_qbo.py",
+    "source_sha256": "7a211f0b5dc74fba5df6b2e53a117a762976513cfcedab13dae161002f306654"
+  },
+  {
+    "source": "scripts/audit_qbo_technical.py",
+    "destination": "scripts/analysis/audit_qbo_technical.py",
+    "source_sha256": "25d11a70e2b705922e87e771ed9c76a682d85710e816d0422061d57fd5111a12"
+  },
+  {
+    "source": "scripts/audit_v3_preconditions.py",
+    "destination": "scripts/analysis/audit_v3_preconditions.py",
+    "source_sha256": "99ea3198d7236e7f61a933429b13e285192d4969a5e11854df71616190f19277"
+  },
+  {
+    "source": "scripts/screen_qbo_boundaries.py",
+    "destination": "scripts/analysis/screen_qbo_boundaries.py",
+    "source_sha256": "4557143b5bc6a5b5bb5f3210d9c86af5cbe714ef2c077a5c05d273deff94676a"
+  },
+  {
+    "source": "scripts/evaluate_boundary_v4.py",
+    "destination": "scripts/analysis/evaluate_boundary_v4.py",
+    "source_sha256": "43948c518f2f98136aab053c266e1f75f2fec05a43715b772d824187acfe88b9"
+  },
+  {
+    "source": "scripts/audit_qbo_operator_scope.py",
+    "destination": "scripts/analysis/audit_qbo_operator_scope.py",
+    "source_sha256": "67dca4cd2ee31a51d21de2dd006725e1e39d5a5a403313590806668f9b74bc31"
+  },
+  {
+    "source": "scripts/assess_zonal_v5.py",
+    "destination": "scripts/analysis/assess_zonal_v5.py",
+    "source_sha256": "0fbffbc629151bc7391db029313cad3ba15995f5a727f570bb1764a34313ed6c"
+  },
+  {
+    "source": "scripts/summarize_remote_increment.py",
+    "destination": "scripts/analysis/summarize_remote_increment.py",
+    "source_sha256": "ecc19cd7b4c26211da41494f87a193b475dc765def1c243b3040273c7cf3a3fb"
+  },
+  {
+    "source": "scripts/remote_v4/probe_boundary_v4.f90",
+    "destination": "native/boundary/probe_boundary_v4.f90",
+    "source_sha256": "47cfdd41b4c051bc57e1fb26103ffe7df0b8ead99f24630efabebee400c248a0"
+  },
+  {
+    "source": "scripts/remote_v4/qbo_boundary_v4.f90",
+    "destination": "native/boundary/qbo_boundary_v4.f90",
+    "source_sha256": "92c519139c0883414cc326dfd7493d34a2c8d9e92b1cfd302a085ddab8fd39aa"
+  },
+  {
+    "source": "scripts/cam_adapter_v4/cam_test_support.F90",
+    "destination": "native/cam_adapter/cam_test_support.F90",
+    "source_sha256": "a0437c32964bbbfa6b17932c6353aa925ca67cd7bc42e69217d92e9fe8e2c31a"
+  },
+  {
+    "source": "scripts/cam_adapter_v4/probe_cam_adapter_v4.F90",
+    "destination": "native/cam_adapter/probe_cam_adapter_v4.F90",
+    "source_sha256": "70b61971aca5abb4c0829ae508bf442f3aa4d9d338e5df0202f1860d8f3066a7"
+  },
+  {
+    "source": "scripts/cam_adapter_v4/qbo_boundary_cam_v4.F90",
+    "destination": "native/cam_adapter/qbo_boundary_cam_v4.F90",
+    "source_sha256": "cc32767922bb9aecb02a6b8784e0d3463c0639a517d9e14326285e979188eb00"
+  },
+  {
+    "source": "scripts/remote_v2/read_qbo_native.f90",
+    "destination": "native/netcdf/read_qbo_native.f90",
+    "source_sha256": "6dccc9ed16b91e90dd5944ba46140c1b3fa3cde2ca2ab3c4d9cd98891da282f2"
+  },
+  {
+    "source": "outputs/20260916_native_exit_r2/payload/probe_zonal_v5_exit_r2.f90",
+    "destination": "native/zonal/probe_zonal_v5_mpi.f90",
+    "source_sha256": "28a2f42899ce863292ad06cc39ea76b2e1a8fd64fb1ae52ec8d85d50f40b5bc1"
+  },
+  {
+    "source": "outputs/20260916_cam_v5_contract/payload/qbo_contract.f90",
+    "destination": "native/contract/qbo_contract.f90",
+    "source_sha256": "fbfdc69e3df0fc3151ab26ac15b3644bba7d62139a862d8ddccc3f39cc79155d"
+  },
+  {
+    "source": "outputs/20260916_cam_v5_contract/payload/test_contract.f90",
+    "destination": "native/contract/test_contract.f90",
+    "source_sha256": "9211009be554cca3c4564ff3a4db5e1c4f78dc56417bf78d975eac9a758c6ddc"
+  },
+  {
+    "source": "outputs/20260916_cam_v5_contract/cases.json",
+    "destination": "native/contract/cases.json",
+    "source_sha256": "0b446fbd5cd104e73e2fb5a065919dcdb704b79a042bf996e5b73eb8b3141c92"
+  },
+  {
+    "source": "outputs/20260914_v3_audit/build/qbo.F90",
+    "destination": "vendor/cam/qbo.F90",
+    "source_sha256": "7e098beb9455d7c45a6a63ffc2f457d29a3d9e971cf9f1643b748a59a0212a64"
+  },
+  {
+    "source": "cesm_source/LICENSE.txt",
+    "destination": "vendor/cam/LICENSE.txt",
+    "source_sha256": "414f5b375bd263edc09267441ce6bfd694a00b1a5fa3ce280d335fd7dae6507d"
+  }
+]

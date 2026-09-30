@@ -1,0 +1,68 @@
+{
+  "recorded_at": "2026-09-16",
+  "source": "Original experiment assessments; these are recorded runs, not fresh runs of this repository.",
+  "zonal": {
+    "job_id": "33468",
+    "native_validation_passed": true,
+    "diagnostic_version": "R2_coverage_error_orderly_finalize",
+    "valid_partitions": 4,
+    "all_four_byte_identical": true,
+    "tolerance": 5e-14,
+    "partitions": [
+      {
+        "all_reference_zeros_exact": true,
+        "rows": 3998,
+        "reference_exact_zero_count": 937,
+        "max_absolute_error": 0.0,
+        "sha256": "f73d0f03e5ddac6e2e672576bff5442fac097b4f877add2bf406ce7824fbb8bd",
+        "partition": "minimum_1_cyclic",
+        "values_finite_in_unit_interval": true,
+        "unique_ordered_indices": true,
+        "worst_index": null
+      },
+      {
+        "all_reference_zeros_exact": true,
+        "rows": 3998,
+        "reference_exact_zero_count": 937,
+        "max_absolute_error": 0.0,
+        "sha256": "f73d0f03e5ddac6e2e672576bff5442fac097b4f877add2bf406ce7824fbb8bd",
+        "partition": "minimum_2_cyclic",
+        "values_finite_in_unit_interval": true,
+        "unique_ordered_indices": true,
+        "worst_index": null
+      },
+      {
+        "all_reference_zeros_exact": true,
+        "rows": 3998,
+        "reference_exact_zero_count": 937,
+        "max_absolute_error": 0.0,
+        "sha256": "f73d0f03e5ddac6e2e672576bff5442fac097b4f877add2bf406ce7824fbb8bd",
+        "partition": "minimum_2_block",
+        "values_finite_in_unit_interval": true,
+        "unique_ordered_indices": true,
+        "worst_index": null
+      },
+      {
+        "all_reference_zeros_exact": true,
+        "rows": 3998,
+        "reference_exact_zero_count": 937,
+        "max_absolute_error": 0.0,
+        "sha256": "f73d0f03e5ddac6e2e672576bff5442fac097b4f877add2bf406ce7824fbb8bd",
+        "partition": "minimum_2_single",
+        "values_finite_in_unit_interval": true,
+        "unique_ordered_indices": true,
+        "worst_index": null
+      }
+    ]
+  },
+  "contract": {
+    "job_id": "33510",
+    "status": "ISOLATED_CONTRACT_PASS",
+    "categories": 10,
+    "subcases": 12,
+    "synthetic_capacity": 8,
+    "module_sha256": "fbfdc69e3df0fc3151ab26ac15b3644bba7d62139a862d8ddccc3f39cc79155d",
+    "driver_sha256": "9211009be554cca3c4564ff3a4db5e1c4f78dc56417bf78d975eac9a758c6ddc"
+  },
+  "cam_v5_driver_comparison": "pending"
+}

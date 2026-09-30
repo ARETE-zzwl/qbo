@@ -1,0 +1,4 @@
+* text=auto eol=lf
+*.f90 -text
+*.F90 -text
+vendor/cam/* -text -whitespace
