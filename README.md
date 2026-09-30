@@ -1,10 +1,8 @@
-# QBO experiments
+# QBO background experiments
 
 [中文](README.zh-CN.md) · [Architecture](docs/architecture.md) · [Data and workflows](docs/workflows.md)
 
-Tools for studying how the atmospheric response to the quasi-biennial oscillation (QBO) changes between early and late climate backgrounds in CESM/WACCM. The experiment pairs the same westerly and easterly QBO targets with two SST and sea-ice climatologies.
-
-The repository contains target and background builders, tropopause-aware forcing operators, diagnostics, and Fortran tests for CAM integration.
+Input preparation and forcing diagnostics for QBO experiments in CESM/WACCM. The experiment holds the westerly and easterly QBO targets fixed across two SST and sea-ice backgrounds to study how the atmospheric response changes with the background climate.
 
 ## Experiment design
 
@@ -13,15 +11,17 @@ The repository contains target and background builders, tropopause-aware forcing
 | Westerly QBO | W × early | W × late |
 | Easterly QBO | E × early | E × late |
 
-Targets use MERRA-2 monthly zonal wind at the equator. Years are ranked by the March 70-hPa anomaly over 1981–2024; the upper and lower eight years define the W and E composites. Each target has seven pressure levels and thirteen monthly nodes, from the preceding September to the following September. The target file for a given phase is identical across backgrounds.
+QBO targets are built from MERRA-2 equatorial monthly zonal wind. Years from 1981–2024 are ranked by the March 70-hPa wind anomaly; the highest and lowest eight years form the W and E composites. Each target contains seven pressure levels and thirteen monthly nodes, from September before the selected March through September of that year. Both backgrounds use the same target file for each phase.
 
-HadISST supplies the monthly SST and sea-ice climatologies. A periodic nearest-neighbour mapping places them on the baseline FV grid, with baseline values filling missing source cells.
+SST and sea-ice backgrounds are monthly HadISST climatologies for the two periods. They are mapped to the baseline FV grid by nearest-neighbour interpolation with periodic longitude. Missing source values are filled from the baseline.
 
-## Install and test
+## Installation
 
 Python 3.10 or later:
 
 ```bash
+git clone https://github.com/ARETE-zzwl/qbo.git
+cd qbo
 python -m venv .venv
 ```
 
@@ -29,10 +29,7 @@ Activate with `source .venv/bin/activate` on Linux/macOS or `.venv\Scripts\Activ
 
 ```bash
 python -m pip install -e ".[test]"
-python -m pytest
 ```
-
-The Python tests build small arrays and NetCDF files locally. They cover input layout, periodic longitude mapping, boundary weights, forcing diagnostics, operator decomposition, and CAM source preparation.
 
 ## Build inputs
 
@@ -44,9 +41,11 @@ qbo-validate-targets outputs/targets --output outputs/targets/qc.json
 qbo-build-backgrounds --sst-gz data/HadISST_sst.nc.gz --ice-gz data/HadISST_ice.nc.gz --baseline data/sst_baseline.nc --output outputs/backgrounds
 ```
 
-The builders write NetCDF files and JSON metadata with input and output hashes. QBO files store `qbo(time, level)`, matching the WACCM Fortran reader's `u_inp(level, time)` array.
+Outputs are NetCDF files and JSON metadata. QBO files store `qbo(time, level)` to match WACCM's Fortran reader.
 
-## Use the operators
+## Boundary weights
+
+The column weight tapers smoothly to zero as the layer bottom approaches the most restrictive of three tropopause estimates. Taking the minimum across longitude gives a uniform weight for the latitude ring.
 
 ```python
 import numpy as np
@@ -60,7 +59,21 @@ column_weights = column_taper(80., safe)
 ring_weight = zonal_envelope(column_weights)
 ```
 
-The column operator applies a smooth taper above the most restrictive valid tropopause. The zonal operator takes the minimum over longitude, giving a uniform weight that satisfies every column's boundary constraint.
+## Tests
+
+```bash
+python -m pytest
+```
+
+Tests cover input generation, NetCDF layout, longitude mapping, boundary weights, forcing diagnostics and CAM source preparation. Test inputs are generated locally.
+
+With GNU Fortran and MPI installed:
+
+```bash
+python scripts/check_native.py --output outputs/native-check
+```
+
+This compares the Fortran kernel with the Python reference and checks zonal reductions and MPI column coverage. Use a new output directory for each run.
 
 ## Repository layout
 
@@ -73,18 +86,6 @@ docs/             Architecture, workflows and source provenance
 vendor/cam/       Pinned CAM QBO source and upstream license
 ```
 
-Fortran checks use GNU Fortran and an MPI toolchain:
+The v5 CAM driver integration is at the design stage; see [CAM integration](docs/architecture.md#cam-integration). To analyze existing model runs, point `QBO_WORKSPACE` at the experiment archive as described in [Data and workflows](docs/workflows.md#analyze-an-existing-experiment-archive).
 
-```bash
-python scripts/check_native.py --output outputs/native-check
-```
-
-The command checks Python/Fortran boundary agreement, zonal reductions across MPI layouts, and twelve epoch/column-coverage cases.
-
-## Development status
-
-Input preparation, offline operators, the instrumented v4 CAM adapter, and isolated v5 MPI contracts have test coverage. The v5 prepare/reduce/resume integration remains a design described in the [architecture notes](docs/architecture.md#cam-integration). Full-model background-response experiments are the next stage.
-
-Historical analysis scripts read a separate experiment archive through `QBO_WORKSPACE`. Large input datasets, model histories, job logs and machine-specific connection settings stay outside Git.
-
-The pinned CAM source retains its [upstream license](vendor/cam/LICENSE.txt).
+`vendor/cam/` contains the CAM QBO source used by the adapter, with its [upstream license](vendor/cam/LICENSE.txt).

@@ -1,10 +1,8 @@
-# QBO 实验
+# QBO 气候背景对照实验
 
 [English](README.md) · [架构说明](docs/architecture.zh-CN.md) · [数据与运行流程](docs/workflows.zh-CN.md)
 
-这个项目使用 CESM/WACCM，研究大气对准两年振荡（QBO）的响应如何随气候背景变化。实验将同一组西风、东风 QBO 目标分别施加到早期和晚期海温、海冰背景中，比较两种背景下的响应。
-
-仓库包含输入场构建、对流层顶边界权重、强迫诊断，以及 CAM 接入所用的 Fortran 验证程序。
+用于 CESM/WACCM 准两年振荡（QBO）实验的输入构建与强迫诊断代码。实验固定西风和东风两组 QBO 目标，分别搭配早期、晚期海温和海冰背景，研究大气响应随气候背景的变化。
 
 ## 实验设计
 
@@ -13,15 +11,17 @@
 | 西风 QBO | W × early | W × late |
 | 东风 QBO | E × early | E × late |
 
-QBO 目标来自 MERRA-2 赤道月平均纬向风。按 1981–2024 年各年 3 月 70 hPa 风速距平排序，取最高和最低各 8 年，构建 W、E 两组月合成。每组包含 7 个气压层、13 个月节点，覆盖前一年 9 月至当年 9 月。同一相位在两种背景中使用相同的目标文件。
+QBO 目标由 MERRA-2 赤道月平均纬向风构建。按 1981–2024 年各年 3 月 70 hPa 风速距平排序，取最高和最低各 8 年，分别合成 W、E 两组目标。每组包含 7 个气压层、13 个月节点，从入选年的前一年 9 月延续至当年 9 月。两种背景使用相同的相位目标文件。
 
-海温和海冰背景来自 HadISST 月气候态，经周期经度最近邻插值映射到基准 FV 网格；源数据缺测处采用对应位置的基准场。
+海温和海冰背景采用两个时期的 HadISST 月气候态，通过最近邻插值映射到基准 FV 网格，经度按周期处理。源数据缺测处使用对应位置的基准场填补。
 
-## 安装与测试
+## 安装
 
 需要 Python 3.10 或以上版本：
 
 ```bash
+git clone https://github.com/ARETE-zzwl/qbo.git
+cd qbo
 python -m venv .venv
 ```
 
@@ -29,10 +29,7 @@ Linux/macOS 使用 `source .venv/bin/activate` 激活环境，PowerShell 使用 
 
 ```bash
 python -m pip install -e ".[test]"
-python -m pytest
 ```
-
-Python 测试在本地生成小型数组和 NetCDF 文件，覆盖输入维度、经度周期拼接、边界权重、强迫诊断、纬向与非纬向分解，以及 CAM 源码准备。
 
 ## 构建输入
 
@@ -44,9 +41,11 @@ qbo-validate-targets outputs/targets --output outputs/targets/qc.json
 qbo-build-backgrounds --sst-gz data/HadISST_sst.nc.gz --ice-gz data/HadISST_ice.nc.gz --baseline data/sst_baseline.nc --output outputs/backgrounds
 ```
 
-构建程序输出 NetCDF 文件及带输入、输出哈希的 JSON 元数据。QBO 文件采用 `qbo(time, level)` 存储顺序，对应 WACCM Fortran 端的 `u_inp(level, time)` 数组。
+输出包括 NetCDF 文件和 JSON 元数据。QBO 文件采用 `qbo(time, level)` 存储顺序，与 WACCM 的 Fortran 读取接口对应。
 
-## 使用边界算子
+## 边界权重
+
+逐柱权重取三组对流层顶诊断中最严格的边界，在层底接近该边界时平滑衰减至零。沿经度取最小值后，得到同一纬圈共用的权重。
 
 ```python
 import numpy as np
@@ -60,7 +59,21 @@ column_weights = column_taper(80., safe)
 ring_weight = zonal_envelope(column_weights)
 ```
 
-逐柱算子以三组有效对流层顶中最严格的边界为准，计算平滑衰减权重。纬圈算子再取所有经度的最小值，使同一纬圈的强迫权重一致，并满足每一柱的边界约束。
+## 测试
+
+```bash
+python -m pytest
+```
+
+测试覆盖输入构建、NetCDF 维度、经度映射、边界权重、强迫诊断和 CAM 源码准备，所需测试数据在本地生成。
+
+安装 GNU Fortran 和 MPI 后，可运行原生测试：
+
+```bash
+python scripts/check_native.py --output outputs/native-check
+```
+
+程序对照 Fortran 内核与 Python 参考值，并检查纬圈归约和 MPI 逐柱覆盖。每次运行使用新的输出目录。
 
 ## 代码结构
 
@@ -73,18 +86,6 @@ docs/             架构、运行流程与代码来源
 vendor/cam/       固定版本的 CAM QBO 源码及原许可
 ```
 
-Fortran 检查需要 GNU Fortran 和 MPI 工具链：
+v5 的 CAM 驱动接入目前处于设计阶段，方案见 [CAM 接入](docs/architecture.zh-CN.md#cam-接入)。分析已有模式运行时，通过 `QBO_WORKSPACE` 指定实验档案目录，具体用法见[数据与运行流程](docs/workflows.zh-CN.md#分析已有实验档案)。
 
-```bash
-python scripts/check_native.py --output outputs/native-check
-```
-
-该命令验证 Python 与 Fortran 边界计算的一致性、不同 MPI 分配下的纬圈归约，以及 12 个时间步和逐柱覆盖测试案例。
-
-## 当前进度
-
-输入构建、离线算子、带诊断的 v4 CAM 适配器，以及独立的 v5 MPI 契约已有测试覆盖。v5 的 prepare/reduce/resume 接入方案见[架构说明](docs/architecture.zh-CN.md#cam-接入)。完整模式中的背景响应实验是下一阶段工作。
-
-历史分析脚本通过 `QBO_WORKSPACE` 读取实验档案。大型输入数据、模式历史场、作业日志和本机连接配置保存在 Git 仓库之外。
-
-固定版本的 CAM 源码保留其[原许可](vendor/cam/LICENSE.txt)。
+`vendor/cam/` 保存适配器使用的 CAM QBO 源码及其[原许可](vendor/cam/LICENSE.txt)。
