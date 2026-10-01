@@ -35,7 +35,16 @@ def parse_merra(path: Path):
     rows = {}
     for line in lines:
         if line.lstrip().startswith("P (hPa):"):
+            if pressure is not None:
+                raise ValueError("Duplicate pressure header")
             pressure = np.array([float(x) for x in line.split(":", 1)[1].split()], dtype=float)
+            if not np.all(np.isfinite(pressure)) or np.any(pressure <= 0):
+                raise ValueError("Pressure levels must be finite and positive")
+            if len(np.unique(pressure)) != len(pressure):
+                raise ValueError("Duplicate pressure levels")
+            missing = PROFILE_HPA[~np.isin(PROFILE_HPA, pressure)]
+            if missing.size:
+                raise ValueError(f"Missing target pressure levels (hPa): {missing.tolist()}")
         elif re.match(r"^\s*\d{6}\s+", line):
             if pressure is None:
                 raise ValueError("Data row encountered before pressure header")
@@ -43,9 +52,17 @@ def parse_merra(path: Path):
             stamp = fields[0]
             if len(fields) != 1 + len(pressure):
                 raise ValueError(f"Unexpected field count for {stamp}: {len(fields)}")
-            rows[(int(stamp[:4]), int(stamp[4:]))] = np.array(
+            key = (int(stamp[:4]), int(stamp[4:]))
+            if key[0] < 1 or not 1 <= key[1] <= 12:
+                raise ValueError(f"Invalid year/month: {stamp}")
+            if key in rows:
+                raise ValueError(f"Duplicate month: {stamp}")
+            winds = np.array(
                 [float(x) for x in fields[1:]], dtype=np.float64
             )
+            if not np.all(np.isfinite(winds)):
+                raise ValueError(f"Winds must be finite for {stamp}")
+            rows[key] = winds
     if pressure is None or len(rows) == 0:
         raise ValueError("MERRA-2 header or data rows not found")
     return pressure, rows
@@ -95,7 +112,12 @@ def main():
     ap.add_argument("--output", type=Path, required=True)
     args = ap.parse_args()
     pressure, rows = parse_merra(args.input)
-    idx70 = int(np.argmin(np.abs(pressure - 70.0)))
+    required = [(y, m) for y in range(START_YEAR, END_YEAR + 1) for m in range(1, 13)]
+    required += [(START_YEAR - 1, m) for m in range(9, 13)]
+    missing = sorted(set(required).difference(rows))
+    if missing:
+        raise ValueError(f"Missing MERRA-2 months: {', '.join(f'{y:04d}{m:02d}' for y, m in missing)}")
+    idx70 = int(np.flatnonzero(pressure == 70.0)[0])
     months = np.array([rows[(y, m)] for y in range(START_YEAR, END_YEAR + 1) for m in range(1, 13)])
     climatology = np.stack([months[np.arange(m - 1, len(months), 12)].mean(axis=0) for m in range(1, 13)])
     march = []
@@ -114,7 +136,7 @@ def main():
         ], axis=1)
 
     # Reorder from MERRA pressure descending to QBO module top-to-bottom.
-    selected = np.array([np.argmin(np.abs(pressure - p)) for p in PROFILE_HPA])
+    selected = np.array([np.flatnonzero(pressure == p)[0] for p in PROFILE_HPA])
     west = profile(west_years)[selected, :]
     east = profile(east_years)[selected, :]
     out = args.output

@@ -34,12 +34,17 @@ def climatology(path: Path, variable: str, years: tuple[int, int]):
         time_var = ds.variables["time"]
         dates = num2date(time_var[:], time_var.units, getattr(time_var, "calendar", "standard"))
         idx = [i for i, date in enumerate(dates) if years[0] <= date.year <= years[1]]
-        if len(idx) != (years[1] - years[0] + 1) * 12:
+        months = [(dates[i].year, dates[i].month) for i in idx]
+        if len(set(months)) != len(months):
+            raise ValueError(f"Duplicate HadISST month in period {years}")
+        expected = {(y, m) for y in range(years[0], years[1] + 1) for m in range(1, 13)}
+        if not expected or set(months) != expected:
             raise ValueError(f"Incomplete HadISST period {years}: {len(idx)} months")
+        idx.sort(key=lambda i: (dates[i].year, dates[i].month))
         lat = np.asarray(ds.variables["latitude"][:], dtype=float)
         lon = np.asarray(ds.variables["longitude"][:], dtype=float)
-        values = np.asarray(ds.variables[variable][idx], dtype=np.float32)
-    values[values < -100] = np.nan
+        values = np.ma.asarray(ds.variables[variable][idx], dtype=np.float32).filled(np.nan)
+    values[(values < -100) | ~np.isfinite(values)] = np.nan
     # HadISST is latitude-descending and longitude -179.5..179.5.
     lat_order = np.argsort(lat)
     lon360 = np.mod(lon, 360.0)
@@ -47,7 +52,11 @@ def climatology(path: Path, variable: str, years: tuple[int, int]):
     lat = lat[lat_order]
     lon360 = lon360[lon_order]
     values = values[:, lat_order][:, :, lon_order]
-    monthly = np.stack([np.nanmean(values[m::12], axis=0) for m in range(12)], axis=0)
+    monthly = np.full((12, *values.shape[1:]), np.nan, dtype=np.float32)
+    for month in range(12):
+        sample = values[month::12]
+        count = np.isfinite(sample).sum(axis=0)
+        np.divide(np.nansum(sample, axis=0), count, out=monthly[month], where=count > 0)
     return lat, lon360, monthly
 
 
