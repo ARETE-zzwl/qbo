@@ -24,6 +24,8 @@ Pair W/E initial conditions within each background. Resample independent member 
 
 Identical target files can produce different realized winds. Here the boundary weights depend on tropopause geometry, and the zonal minimum can change with the background. This creates a practical identification question: how much of a regional interaction accompanies a difference in the realized QBO contrast?
 
+An offline evaluation of six archived initialization/short-run states gives a concrete starting point. Within 5° of the equator, v5 retains about 49.33% of the original relaxation rate at the layer centered near 61.52 hPa and zero at 73.75 hPa; the hard uniform-support bound is also zero at the latter level. Levels are labeled by midpoint pressure, while the operator uses layer-bottom pressure. The next physical test is whether control aloft can realize the intended lower-level QBO structure through model dynamics. [Archived values and source hash](archived-support.json).
+
 Recent studies show that QBO nudging improves some teleconnections while other biases persist, and that lower-stratospheric amplitude and analysis choices affect teleconnection estimates. [Andrews et al. (2026)](https://wcd.copernicus.org/articles/7/1797/2026/), [Garfinkel et al. (2026)](https://wcd.copernicus.org/articles/7/1133/2026/).
 
 For fixed latitudes, levels and time windows, save target/realized winds, bias and RMSE; the realized W−E profile in each background; 30–50–70 hPa structure and descent timing; effective weights and relaxation rates; accumulated increments; and zonal/eddy components of the applied tendency. Compare these diagnostics with prespecified tolerances and retain member distributions.
@@ -44,8 +46,8 @@ A recent study finds a changing QBO–typhoon-track relationship in the western 
 
 ## External comparisons and order of work
 
-QBOi perpetual-ENSO experiments and LESFMIP large ensembles can help assess background dependence, model differences and internal variability. ENSO-related changes in QBO period are more consistent across the QBOi models than amplitude changes. [Kawatani et al. (2025)](https://wcd.copernicus.org/articles/6/1045/2025/). Inventory available winds and regional endpoint variables before requesting regional/level subsets of larger archives.
+QBOi perpetual-ENSO experiments and LESFMIP large ensembles can help assess background dependence, model differences and internal variability. ENSO-related changes in QBO period are more consistent across the QBOi models than amplitude changes. [Kawatani et al. (2025)](https://wcd.copernicus.org/articles/6/1045/2025/). Inventory available winds and regional endpoint variables before requesting regional/level subsets of larger archives. The LESFMIP data used in the cited study are available through ESGF; QBOi archive access requires contacting the coordinators and applying through JASMIN. [Archive access](https://wcd.copernicus.org/articles/7/1797/2026/#section8).
 
 The immediate sequence is full-driver equivalence, realized-QBO fidelity, then the factorial ensemble. A small annual forecasting dataset and a fixed validation protocol can be prepared independently. New endpoints or mechanisms require a separate scientific design.
 
-The focused search used publisher pages and bibliographic databases for East Asian precipitation, QBO vertical structure, nudging, background dependence and nonstationarity. Records were deduplicated by DOI and publication status checked. Six linked works are journal articles; Anstey et al. is a preprint. Crossref's batch metadata endpoint was rate-limited, so the linked publisher records supply the bibliographic information.
+The focused search covered East Asian precipitation, QBO vertical structure, nudging, background dependence and nonstationarity. Records were deduplicated by DOI, with abstracts and publication status checked on publisher pages. Six linked works are journal articles; Anstey et al. is a preprint.
