@@ -25,6 +25,29 @@ qbo-build-backgrounds --sst-gz data/HadISST_sst.nc.gz --ice-gz data/HadISST_ice.
 
 背景构建程序输出早期、晚期两份气候态及 `background_metadata.json`。海冰覆盖率截断到 0–1，主字段和 `_prediddle` 字段初始值相同。CESM 的月平均保持调整属于后续模式输入处理步骤。
 
+## 诊断单个快照
+
+`qbo-diagnose` 读取一个时间点的 NetCDF 文件：
+
+| 变量 | 维度 | 含义 |
+|---|---|---|
+| `lat`、`lon` | `(lat)`、`(lon)` | 单位为度；纬度中心等间距且不含两极，经度覆盖完整纬圈、等间距且不重复首尾点 |
+| `tropopause_hpa` | `(diagnostic, lat, lon)` | 按 TROP、TROPP、TROPF 顺序排列的气压，单位 hPa，diagnostic 长度为 3 |
+| `found` | `(diagnostic, lat, lon)` | 对应诊断的有效标志，大于 0.5 表示找到 |
+| `layer_bottom_hpa` | `(level)` 或 `(level, lat, lon)` | 各层层底气压，单位 hPa，取正值 |
+
+全局属性 `input_kind` 会传入输出；示例使用 `synthetic`。处理 CAM 数据时，先选取一个时间点，用混合坐标界面与地面气压重建层底气压，将 Pa 换算为 hPa，并保留每个所选纬圈的全部经度。先插值再取最小值会改变所评估的算子。
+
+```bash
+qbo-diagnose --input data/snapshot.nc --output outputs/diagnostics
+```
+
+新输出目录包含 `weights.nc`、`summary.csv` 和 `report.json`，统计采用纬度余弦权重。对流层顶诊断无效的柱得到零权重。这些量描述几何控制范围；模式中的实际松弛率还取决于纬度衰减、松弛强度等强迫条件。
+
+`qbo-demo --output outputs/demo` 生成这种格式的小型示例、两类输入构建结果和三联图。绘图需安装 `.[demo]`；快照诊断只需基础依赖。
+
+输入检查会拒绝风速表中的重复或非法月份、非有限风速及缺少或重复的目标气压层。HadISST 按年月排序，所选时段的每个月须出现一次。月平均保留 NetCDF 缺测掩码；整个时段均缺测的网格，在重映射后使用基准值填充。
+
 ## 原生测试
 
 Linux 环境的 `PATH` 中有 `gfortran`、`mpifort`、`mpiexec` 后，执行：

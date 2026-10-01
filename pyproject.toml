@@ -12,12 +12,15 @@ dependencies = ["numpy>=1.24", "scipy>=1.10", "netCDF4>=1.6"]
 
 [project.optional-dependencies]
 test = ["pytest>=8"]
+demo = ["matplotlib>=3.7"]
 
 [project.scripts]
 qbo-build-targets = "qbo.targets:main"
 qbo-build-backgrounds = "qbo.backgrounds:main"
 qbo-validate-targets = "qbo.validate:main"
 qbo-native-boundary = "qbo.native:main"
+qbo-diagnose = "qbo.diagnostics:main"
+qbo-demo = "qbo.demo:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

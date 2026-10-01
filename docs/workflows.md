@@ -15,6 +15,8 @@ Run commands from the repository root after installing `.[test]`.
 
 The QBO selection period is 1981–2024. Supply the preceding September–December as well, since composites span the September before each selected March. HadISST needs every month from January 1981 through December 2024. The SST baseline supplies twelve monthly records on the target grid.
 
+The wind parser rejects duplicate/invalid months, non-finite winds and missing or duplicate target pressure levels. HadISST records are sorted by calendar year/month; each requested month must occur once. NetCDF missing-value masks are retained when forming monthly means. Cells missing throughout the period are filled from the baseline after regridding.
+
 ```bash
 qbo-build-targets --input data/QBO_MERRA2-Uvals_00N_GSFC.txt --output outputs/targets
 qbo-validate-targets outputs/targets --output outputs/targets/qc.json
@@ -24,6 +26,27 @@ qbo-build-backgrounds --sst-gz data/HadISST_sst.nc.gz --ice-gz data/HadISST_ice.
 The target builder writes `qbo_target_W.nc`, `qbo_target_E.nc`, `selection.csv` and `target_metadata.json`. NetCDF dates are month-start nodes in model years 1 and 2, with September repeated as the endpoint. A March node therefore represents an interpolation node rather than a calendar-month integral.
 
 The background builder writes one early and one late climatology plus `background_metadata.json`. It clips ice fractions to 0–1 and writes equal initial values to the main and `_prediddle` fields. The CESM monthly-mean-preserving adjustment is a subsequent model-input processing step; it is not performed by this builder.
+
+## Diagnose a snapshot
+
+`qbo-diagnose` reads one snapshot using these NetCDF names and dimensions:
+
+| Variable | Dimensions | Meaning |
+|---|---|---|
+| `lat`, `lon` | `(lat)`, `(lon)` | Degrees; equally spaced latitude centers excluding the poles, and a complete equally spaced longitude ring without a duplicate seam |
+| `tropopause_hpa` | `(diagnostic, lat, lon)` | TROP, TROPP and TROPF pressures, in that order; diagnostic dimension length 3 |
+| `found` | `(diagnostic, lat, lon)` | Corresponding found flags; values greater than 0.5 mean found |
+| `layer_bottom_hpa` | `(level)` or `(level, lat, lon)` | Positive layer-bottom pressures in hPa |
+
+The optional global attribute `input_kind` is copied into outputs; the demo uses `synthetic`. For CAM data, select one time, reconstruct layer-bottom pressures from the hybrid interfaces and surface pressure, convert Pa to hPa, and retain every longitude in each selected latitude ring. Regridding before taking the minimum changes the operator being evaluated.
+
+```bash
+qbo-diagnose --input data/snapshot.nc --output outputs/diagnostics
+```
+
+The new output directory contains `weights.nc`, `summary.csv` and `report.json`. Summaries use cosine latitude weights. Invalid tropopause columns receive zero weight. These are geometric support statistics; the actual relaxation rate also depends on the model's latitude taper, relaxation strength and other forcing conditions.
+
+`qbo-demo --output outputs/demo` creates a small example of this format, input-builder outputs and a three-panel figure. Install `.[demo]` to draw the figure. The CLI itself uses the base package dependencies.
 
 ## Native tests
 

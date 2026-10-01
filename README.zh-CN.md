@@ -31,6 +31,23 @@ Linux/macOS 使用 `source .venv/bin/activate` 激活环境，PowerShell 使用 
 python -m pip install -e ".[test]"
 ```
 
+## 运行示例
+
+```bash
+python -m pip install -e ".[test,demo]"
+qbo-demo --output outputs/demo
+```
+
+示例在本地生成风场、海温、海冰和对流层顶合成数据，运行两类输入构建程序，输出目标文件检查、边界权重，以及 PNG、SVG、PDF 格式的总览图。打开 `outputs/demo/README.md` 查看结果。每次运行使用新的输出目录。
+
+分析自己的快照文件：
+
+```bash
+qbo-diagnose --input data/snapshot.nc --output outputs/diagnostics
+```
+
+[快照格式](docs/workflows.zh-CN.md#诊断单个快照)要求提供完整经度网格上的气压场。[科研方向](docs/research-directions.zh-CN.md)整理了下一步模式验证和可深入的问题。
+
 ## 构建输入
 
 将 MERRA-2 月风速表、HadISST 压缩数据和 CESM 海温基准文件放到 `data/`。所需变量和处理步骤见[数据与运行流程](docs/workflows.zh-CN.md)。
@@ -66,6 +83,8 @@ python -m pytest
 ```
 
 测试覆盖输入构建、NetCDF 维度、经度映射、边界权重、强迫诊断和 CAM 源码准备，所需测试数据在本地生成。
+
+[GitHub Actions](https://github.com/ARETE-zzwl/qbo/actions/workflows/tests.yml) 在 Linux、Windows 和 Python 3.10、3.13 上运行测试与示例，并在 Linux 上编译、运行 Fortran/MPI 检查。每次运行保留报告和编译日志。
 
 安装 GNU Fortran 和 MPI 后，可运行原生测试：
 

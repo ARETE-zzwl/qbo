@@ -31,6 +31,23 @@ Activate with `source .venv/bin/activate` on Linux/macOS or `.venv\Scripts\Activ
 python -m pip install -e ".[test]"
 ```
 
+## Try the workflow
+
+```bash
+python -m pip install -e ".[test,demo]"
+qbo-demo --output outputs/demo
+```
+
+The demo generates synthetic wind, SST, sea-ice and tropopause data, runs both input builders, and writes target QC, boundary weights and an overview figure in PNG, SVG and PDF. Open `outputs/demo/README.md` to inspect the results. Each run uses a new output directory.
+
+To diagnose your own snapshot:
+
+```bash
+qbo-diagnose --input data/snapshot.nc --output outputs/diagnostics
+```
+
+The [snapshot format](docs/workflows.md#diagnose-a-snapshot) uses explicit pressure fields on a complete longitude grid. The [research notes](docs/research-directions.md) describe the next model checks and scientific questions.
+
 ## Build inputs
 
 Place the MERRA-2 monthly wind table, HadISST archives and CESM SST baseline under `data/`. File formats and processing steps are described in [Data and workflows](docs/workflows.md).
@@ -66,6 +83,8 @@ python -m pytest
 ```
 
 Tests cover input generation, NetCDF layout, longitude mapping, boundary weights, forcing diagnostics and CAM source preparation. Test inputs are generated locally.
+
+[GitHub Actions](https://github.com/ARETE-zzwl/qbo/actions/workflows/tests.yml) runs the Python tests and demo on Linux and Windows with Python 3.10 and 3.13, plus the native Fortran/MPI checks on Linux. Reports and compiler logs are saved with each run.
 
 With GNU Fortran and MPI installed:
 

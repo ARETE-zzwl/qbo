@@ -34,6 +34,8 @@ flowchart TD
 | `qbo.metrics` | Quantify retained relaxation and zonal/eddy components |
 | `qbo.preconditions` | Check diagnostic namelists and hard-cutoff geometry |
 | `qbo.native` | Generate boundary test vectors and verify Fortran results |
+| `qbo.diagnostics` | Read an explicit snapshot and write column/zonal weights and summaries |
+| `qbo.demo` | Generate synthetic inputs, run the builders and draw the workflow overview |
 | `scripts/analysis/` | Read archived model evidence and produce JSON/CSV assessments |
 
 The Python package operates on arrays and explicit file paths. Experiment-specific archive traversal lives in the analysis scripts. Native source preparation lives under `scripts/`, alongside the repository's pinned CAM source.
